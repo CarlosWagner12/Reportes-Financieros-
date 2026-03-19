@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CKWM — Finanzas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Crimson+Text:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1a3c34;
+            --secondary: #2d5a4d;
+            --accent: #b8936f;
+            --gold: #d4af37;
+            --text: #2c3e36;
+            --border: #d4c9b8;
+            --success: #3e6f5c;
+            --danger: #9d5a4a;
+            --carlos: #2a5298;
+            --karen: #8b3a8b;
+            --ambos: #2d5a4d;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Crimson Text', serif;
+            background: linear-gradient(135deg, #f8f6f1 0%, #ede8df 100%);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Loading overlay */
+        #loading-overlay {
+            position: fixed; inset: 0;
+            background: linear-gradient(135deg, #1a3c34, #2d5a4d);
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            z-index: 9999; color: white;
+            transition: opacity 0.5s ease;
+        }
+
+        #loading-overlay.hide { opacity: 0; pointer-events: none; }
+
+        .loading-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 3em; letter-spacing: 4px;
+            margin-bottom: 20px;
+        }
+
+        .loading-spinner {
+            width: 40px; height: 40px;
+            border: 3px solid rgba(255,255,255,0.2);
+            border-top-color: var(--gold);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .loading-text {
+            margin-top: 16px; font-size: 1.1em;
+            opacity: 0.7; font-style: italic;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .container { max-width: 1400px; margin: 0 auto; padding: 40px 20px; }
+
+        header {
+            text-align: center; margin-bottom: 50px;
+            padding: 40px 20px;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.6), transparent);
+            border-bottom: 2px solid var(--accent);
+            animation: fadeInDown 0.8s ease;
+        }
+
+        h1 { font-family: 'Playfair Display', serif; font-size: 3.5em; color: var(--primary); font-weight: 700; letter-spacing: 4px; margin-bottom: 6px; }
+        .subtitle { font-size: 1.2em; color: var(--secondary); font-style: italic; letter-spacing: 1px; }
+
+        .sync-indicator {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 0.85em; color: var(--secondary);
+            margin-top: 8px; font-style: italic;
+        }
+
+        .sync-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: #4caf50;
+            box-shadow: 0 0 6px #4caf50;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+        /* Tabs */
+        .tabs { display: flex; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; justify-content: center; }
+
+        .tab-btn {
+            padding: 14px 28px; background: rgba(255,255,255,0.6);
+            border: 2px solid var(--border); border-radius: 8px;
+            font-family: 'Playfair Display', serif; font-size: 1.05em;
+            color: var(--primary); cursor: pointer; transition: all 0.3s ease; font-weight: 600;
+        }
+        .tab-btn:hover { background: rgba(184,147,111,0.2); border-color: var(--accent); transform: translateY(-2px); }
+        .tab-btn.active { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; border-color: var(--primary); }
+        .tab-content { display: none; animation: fadeIn 0.5s ease; }
+        .tab-content.active { display: block; }
+
+        /* Filter bar */
+        .filter-bar {
+            background: rgba(255,255,255,0.82); border: 1px solid var(--border);
+            border-radius: 12px; padding: 15px 22px; margin-bottom: 26px;
+            display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+        }
+        .filter-bar label { font-family: 'Playfair Display', serif; font-size: 1.05em; color: var(--primary); font-weight: 600; margin-bottom: 0; }
+        .filter-bar select { width: auto; padding: 9px 14px; border: 2px solid var(--border); border-radius: 8px; font-family: 'Crimson Text', serif; font-size: 1.05em; background: white; cursor: pointer; color: var(--primary); }
+        .filter-bar select:focus { outline: none; border-color: var(--accent); }
+
+        /* Badges */
+        .badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 0.8em; font-weight: 600; letter-spacing: 0.5px; margin-left: 5px; }
+        .badge-carlos { background: rgba(42,82,152,0.13); color: var(--carlos); border: 1px solid rgba(42,82,152,0.3); }
+        .badge-karen  { background: rgba(139,58,139,0.13); color: var(--karen);  border: 1px solid rgba(139,58,139,0.3); }
+        .badge-ambos  { background: rgba(45,90,77,0.13);  color: var(--ambos);  border: 1px solid rgba(45,90,77,0.3); }
+
+        /* Summary */
+        .summary-section {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white; padding: 36px; border-radius: 12px;
+            margin-bottom: 26px; box-shadow: 0 12px 32px rgba(26,60,52,0.25);
+        }
+        .summary-section h2 { font-family: 'Playfair Display', serif; font-size: 2em; text-align: center; margin-bottom: 5px; }
+        .summary-subtitle { text-align: center; opacity: 0.82; font-style: italic; margin-bottom: 24px; }
+        .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; }
+        .summary-item { text-align: center; padding: 16px; background: rgba(255,255,255,0.1); border-radius: 8px; }
+        .summary-label { font-size: 0.78em; opacity: 0.9; margin-bottom: 7px; text-transform: uppercase; letter-spacing: 1px; }
+        .summary-value { font-family: 'Playfair Display', serif; font-size: 1.5em; font-weight: 700; }
+
+        /* Europa Banner */
+        .europa-banner {
+            color: white; padding: 26px 30px; border-radius: 12px;
+            margin-bottom: 26px; box-shadow: 0 8px 24px rgba(26,42,74,0.3);
+            position: relative; overflow: hidden;
+            background: linear-gradient(135deg, #1a2a4a, #2d4070);
+        }
+        .europa-banner::before { content: '✈'; position: absolute; right: 26px; top: 50%; transform: translateY(-50%); font-size: 5em; opacity: 0.07; pointer-events: none; }
+        .europa-title { font-family: 'Playfair Display', serif; font-size: 1.4em; margin-bottom: 7px; }
+        .europa-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 11px; font-size: 1em; opacity: 0.9; flex-wrap: wrap; gap: 8px; }
+        .europa-bar-wrap { background: rgba(255,255,255,0.18); border-radius: 20px; overflow: hidden; }
+        .europa-bar-fill { height: 13px; border-radius: 20px; transition: width 1s ease; background: linear-gradient(90deg, #d4af37, #f0d060); }
+
+        .mes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(145px,1fr)); gap: 8px; margin-top: 16px; }
+        .mes-card { background: rgba(255,255,255,0.09); border-radius: 8px; padding: 9px 12px; }
+        .mes-card-name { font-size: 0.8em; opacity: 0.72; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 3px; }
+        .mes-card-ahorro { font-family: 'Playfair Display', serif; font-size: 0.98em; font-weight: 600; }
+        .mes-card-acum { font-size: 0.78em; opacity: 0.65; margin-top: 2px; }
+
+        /* Dashboard grid */
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px,1fr)); gap: 24px; }
+
+        .card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.85));
+            border-radius: 12px; padding: 24px;
+            box-shadow: 0 8px 24px rgba(26,60,52,0.12);
+            border: 1px solid var(--border);
+            position: relative; overflow: hidden; transition: all 0.4s ease;
+        }
+        .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--accent), var(--gold)); transform: scaleX(0); transform-origin: left; transition: transform 0.4s ease; }
+        .card:hover::before { transform: scaleX(1); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+        .card-title { font-family: 'Playfair Display', serif; font-size: 1.3em; color: var(--primary); font-weight: 600; }
+        .card-icon { font-size: 1.6em; opacity: 0.5; }
+
+        .list-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 1px solid rgba(212,201,184,0.3); gap: 8px; }
+        .list-row:last-child { border-bottom: none; }
+        .list-row-label { font-weight: 600; color: var(--text); flex: 1; }
+        .list-row-value { font-family: 'Playfair Display', serif; font-weight: 600; color: var(--secondary); white-space: nowrap; }
+
+        .persona-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(212,201,184,0.3); gap: 10px; flex-wrap: wrap; }
+        .persona-row:last-child { border-bottom: none; }
+
+        /* Forms */
+        .form-section { background: rgba(255,255,255,0.95); padding: 26px; border-radius: 12px; margin-bottom: 24px; box-shadow: 0 8px 24px rgba(26,60,52,0.10); border: 1px solid var(--border); }
+        .form-title { font-family: 'Playfair Display', serif; font-size: 1.6em; color: var(--primary); margin-bottom: 18px; padding-bottom: 12px; border-bottom: 2px solid var(--accent); }
+        .form-group { margin-bottom: 16px; }
+        label { display: block; margin-bottom: 6px; font-weight: 600; color: var(--text); }
+
+        input[type="text"], input[type="number"], select {
+            width: 100%; padding: 10px 13px; border: 2px solid var(--border); border-radius: 8px;
+            font-family: 'Crimson Text', serif; font-size: 1.1em;
+            transition: all 0.3s ease; background: white; color: var(--text);
+        }
+        input:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(184,147,111,0.1); }
+
+        .form-row   { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .form-row-3 { display: grid; grid-template-columns: 2fr 1.2fr 1fr; gap: 14px; }
+
+        .btn { padding: 10px 24px; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; border: none; border-radius: 8px; font-family: 'Playfair Display', serif; font-size: 1.05em; font-weight: 600; cursor: pointer; transition: all 0.3s ease; margin-right: 8px; margin-top: 8px; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(26,60,52,0.3); }
+        .btn:disabled { opacity: 0.6; transform: none; cursor: not-allowed; }
+        .btn-danger { background: linear-gradient(135deg, var(--danger), #b86f5a); }
+        .btn-small  { padding: 6px 12px; font-size: 0.87em; }
+
+        .item-list { margin-top: 6px; }
+        .item-card { background: rgba(248,246,241,0.85); padding: 12px 14px; border-radius: 8px; margin-bottom: 9px; border-left: 4px solid var(--accent); display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+        .item-card.carlos-card { border-left-color: var(--carlos); }
+        .item-card.karen-card  { border-left-color: var(--karen); }
+        .item-info { flex: 1; }
+        .item-name   { font-weight: 600; color: var(--primary); margin-bottom: 2px; }
+        .item-desc   { font-size: 0.9em; color: var(--secondary); margin-bottom: 2px; }
+        .item-meta   { font-size: 0.82em; color: #999; }
+        .item-amount { font-family: 'Playfair Display', serif; font-size: 1.12em; color: var(--secondary); margin-top: 3px; }
+
+        /* Responsable selector */
+        .resp-selector { display: flex; gap: 8px; }
+        .resp-btn { flex: 1; padding: 9px; border: 2px solid var(--border); border-radius: 8px; background: white; cursor: pointer; font-family: 'Crimson Text', serif; font-size: 1em; transition: all 0.2s ease; text-align: center; color: var(--text); }
+        .resp-btn.sel-carlos { background: rgba(42,82,152,0.12); border-color: var(--carlos); color: var(--carlos); font-weight: 700; }
+        .resp-btn.sel-karen  { background: rgba(139,58,139,0.12); border-color: var(--karen);  color: var(--karen);  font-weight: 700; }
+        .resp-btn.sel-ambos  { background: rgba(45,90,77,0.12);  border-color: var(--ambos);  color: var(--ambos);  font-weight: 700; }
+
+        .empty-state { text-align: center; opacity: 0.5; padding: 16px 0; font-style: italic; }
+
+        @keyframes fadeInDown { from { opacity:0; transform:translateY(-30px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes fadeIn     { from { opacity:0; } to { opacity:1; } }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.3em; }
+            .dashboard-grid { grid-template-columns: 1fr; }
+            .tabs { flex-direction: column; }
+            .tab-btn { width: 100%; }
+            .summary-grid { grid-template-columns: 1fr 1fr; }
+            .form-row, .form-row-3 { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Loading overlay -->
+<div id="loading-overlay">
+    <div class="loading-logo">⚜ CKWM ⚜</div>
+    <div class="loading-spinner"></div>
+    <div class="loading-text">Conectando con Firebase…</div>
+</div>
+
+<div class="container">
+
+    <header>
+        <h1>⚜ CKWM ⚜</h1>
+        <p class="subtitle">Carlos & Karen — Gestión Financiera 2026–2027</p>
+        <div class="sync-indicator">
+            <div class="sync-dot"></div>
+            Sincronizado en tiempo real
+        </div>
+    </header>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="showTab('dashboard',this)">📊 Dashboard</button>
+        <button class="tab-btn" onclick="showTab('ingresos',this)">💵 Ingresos</button>
+        <button class="tab-btn" onclick="showTab('gastos',this)">💳 Gastos</button>
+        <button class="tab-btn" onclick="showTab('europa',this)">✈️ Europa</button>
+    </div>
+
+    <!-- ══════════════════ DASHBOARD ══════════════════ -->
+    <div id="dashboard" class="tab-content active">
+
+        <div class="filter-bar">
+            <label>📅 Ver mes:</label>
+            <select id="dashMes" onchange="updateDashboard()"></select>
+        </div>
+
+        <div class="summary-section">
+            <h2>Resumen Financiero</h2>
+            <p class="summary-subtitle" id="dashLabel"></p>
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <div class="summary-label">Ingresos</div>
+                    <div class="summary-value" id="s-ingresos">₲ 0</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Gastos</div>
+                    <div class="summary-value" id="s-gastos">₲ 0</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Ahorro del Período</div>
+                    <div class="summary-value" id="s-ahorro">₲ 0</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">→ Europa (acum.)</div>
+                    <div class="summary-value" id="s-europa-acum">₲ 0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Europa mini — dos barras individuales -->
+        <div class="europa-banner">
+            <div class="europa-title">✈️ Fondo Europa — Participación Individual</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:10px;">
+                <div>
+                    <div style="font-size:0.85em;opacity:0.8;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.5px;">Carlos</div>
+                    <div class="europa-meta" style="margin-bottom:8px;">
+                        <span id="d-carlos-label" style="font-size:0.92em;">₲ 0</span>
+                        <span id="d-carlos-pct" style="font-family:'Playfair Display',serif;font-weight:700;">0%</span>
+                    </div>
+                    <div class="europa-bar-wrap"><div class="europa-bar-fill" id="d-carlos-fill" style="width:0%;background:linear-gradient(90deg,#2a5298,#5b82d4);"></div></div>
+                </div>
+                <div>
+                    <div style="font-size:0.85em;opacity:0.8;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.5px;">Karen</div>
+                    <div class="europa-meta" style="margin-bottom:8px;">
+                        <span id="d-karen-label" style="font-size:0.92em;">₲ 0</span>
+                        <span id="d-karen-pct" style="font-family:'Playfair Display',serif;font-weight:700;">0%</span>
+                    </div>
+                    <div class="europa-bar-wrap"><div class="europa-bar-fill" id="d-karen-fill" style="width:0%;background:linear-gradient(90deg,#8b3a8b,#c46ac4);"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="card">
+                <div class="card-header"><h3 class="card-title">Gastos por Categoría</h3><span class="card-icon">🏷️</span></div>
+                <div id="d-gastos-cat"><p class="empty-state">Sin gastos</p></div>
+            </div>
+            <div class="card">
+                <div class="card-header"><h3 class="card-title">Fuentes de Ingreso</h3><span class="card-icon">💵</span></div>
+                <div id="d-ingresos-lista"><p class="empty-state">Sin ingresos</p></div>
+            </div>
+            <div class="card">
+                <div class="card-header"><h3 class="card-title">Balance por Persona</h3><span class="card-icon">👥</span></div>
+                <div id="d-personas"><p class="empty-state">Sin datos</p></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════ INGRESOS ══════════════════ -->
+    <div id="ingresos" class="tab-content">
+        <div class="form-section">
+            <h2 class="form-title">➕ Registrar Ingreso</h2>
+            <div class="form-row-3">
+                <div class="form-group">
+                    <label>Fuente</label>
+                    <input type="text" id="ing-nombre" placeholder="Ej: Salario, Freelance">
+                </div>
+                <div class="form-group">
+                    <label>Mes</label>
+                    <select id="ing-mes"></select>
+                </div>
+                <div class="form-group">
+                    <label>Monto (₲)</label>
+                    <input type="number" id="ing-monto" placeholder="0">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Responsable</label>
+                <div class="resp-selector" id="ing-resp-sel">
+                    <button class="resp-btn sel-carlos" onclick="selResp('ing','Carlos')">Carlos</button>
+                    <button class="resp-btn" onclick="selResp('ing','Karen')">Karen</button>
+                    <button class="resp-btn" onclick="selResp('ing','Ambos')">Ambos</button>
+                </div>
+                <input type="hidden" id="ing-resp" value="Carlos">
+            </div>
+            <button class="btn" id="btn-add-ing" onclick="agregarIngreso()">Agregar Ingreso</button>
+        </div>
+
+        <div class="filter-bar">
+            <label>📅 Filtrar:</label>
+            <select id="ing-filter" onchange="renderIngresosList()"></select>
+        </div>
+        <div class="form-section">
+            <h2 class="form-title">Lista de Ingresos</h2>
+            <div id="ing-lista" class="item-list"></div>
+        </div>
+    </div>
+
+    <!-- ══════════════════ GASTOS ══════════════════ -->
+    <div id="gastos" class="tab-content">
+        <div class="form-section">
+            <h2 class="form-title">➕ Registrar Gasto</h2>
+            <div class="form-row-3">
+                <div class="form-group">
+                    <label>Categoría</label>
+                    <select id="gas-cat">
+                        <option>🏠 Vivienda</option>
+                        <option>🍽️ Alimentación</option>
+                        <option>🚗 Transporte</option>
+                        <option>⚡ Servicios</option>
+                        <option>🎭 Entretenimiento</option>
+                        <option>🏥 Salud</option>
+                        <option>📚 Educación</option>
+                        <option>👕 Ropa</option>
+                        <option>💳 Otros</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Mes</label>
+                    <select id="gas-mes"></select>
+                </div>
+                <div class="form-group">
+                    <label>Monto (₲)</label>
+                    <input type="number" id="gas-monto" placeholder="0">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Descripción (opcional)</label>
+                <input type="text" id="gas-desc" placeholder="Ej: Supermercado, Netflix">
+            </div>
+            <div class="form-group">
+                <label>Responsable</label>
+                <div class="resp-selector" id="gas-resp-sel">
+                    <button class="resp-btn sel-carlos" onclick="selResp('gas','Carlos')">Carlos</button>
+                    <button class="resp-btn" onclick="selResp('gas','Karen')">Karen</button>
+                    <button class="resp-btn" onclick="selResp('gas','Ambos')">Ambos</button>
+                </div>
+                <input type="hidden" id="gas-resp" value="Carlos">
+            </div>
+            <button class="btn" id="btn-add-gas" onclick="agregarGasto()">Agregar Gasto</button>
+        </div>
+
+        <div class="filter-bar">
+            <label>📅 Filtrar:</label>
+            <select id="gas-filter" onchange="renderGastosList()"></select>
+        </div>
+        <div class="form-section">
+            <h2 class="form-title">Lista de Gastos</h2>
+            <div id="gas-lista" class="item-list"></div>
+        </div>
+    </div>
+
+    <!-- ══════════════════ EUROPA ══════════════════ -->
+    <div id="europa" class="tab-content">
+
+        <!-- Carlos banner -->
+        <div class="europa-banner" style="margin-bottom:16px; background: linear-gradient(135deg, #1a2a4a, #2a3a6a);">
+            <div class="europa-title">✈️ Carlos — Progreso Europa</div>
+            <div class="europa-meta">
+                <span id="e-carlos-label">₲ 0 de ₲ 0 ahorrado</span>
+                <span id="e-carlos-pct" style="font-family:'Playfair Display',serif;font-size:1.5em;font-weight:700;">0%</span>
+            </div>
+            <div class="europa-bar-wrap" style="height:13px;"><div class="europa-bar-fill" id="e-carlos-fill" style="width:0%; background: linear-gradient(90deg, #2a5298, #5b82d4);"></div></div>
+            <div class="mes-grid" id="e-carlos-meses"></div>
+        </div>
+
+        <!-- Karen banner -->
+        <div class="europa-banner" style="margin-bottom:24px; background: linear-gradient(135deg, #2a1a3a, #5a2a6a);">
+            <div class="europa-title">✈️ Karen — Progreso Europa</div>
+            <div class="europa-meta">
+                <span id="e-karen-label">₲ 0 de ₲ 0 ahorrado</span>
+                <span id="e-karen-pct" style="font-family:'Playfair Display',serif;font-size:1.5em;font-weight:700;">0%</span>
+            </div>
+            <div class="europa-bar-wrap" style="height:13px;"><div class="europa-bar-fill" id="e-karen-fill" style="width:0%; background: linear-gradient(90deg, #8b3a8b, #c46ac4);"></div></div>
+            <div class="mes-grid" id="e-karen-meses"></div>
+        </div>
+
+        <div class="form-section">
+            <h2 class="form-title">⚙️ Objetivos Individuales del Viaje</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Objetivo Carlos (₲)</label>
+                    <input type="number" id="e-obj-carlos" placeholder="Ej: 30000000">
+                </div>
+                <div class="form-group">
+                    <label>Objetivo Karen (₲)</label>
+                    <input type="number" id="e-obj-karen" placeholder="Ej: 30000000">
+                </div>
+            </div>
+            <button class="btn" onclick="guardarObjetivos()">Guardar Objetivos</button>
+        </div>
+
+    </div>
+
+</div><!-- /container -->
+
+<!-- Firebase SDK -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, setDoc, getDoc }
+        from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+    // ── Firebase config ─────────────────────────────────────
+    const firebaseConfig = {
+        apiKey: "AIzaSyB0XRqDMGCtHQPcUbUVIMffstFgEnrSKCA",
+        authDomain: "ckwm-finanzas.firebaseapp.com",
+        projectId: "ckwm-finanzas",
+        storageBucket: "ckwm-finanzas.firebasestorage.app",
+        messagingSenderId: "713475005481",
+        appId: "1:713475005481:web:7d2bf5c2895ec9e7b29038"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db  = getFirestore(app);
+
+    // ── Colecciones ─────────────────────────────────────────
+    const ingresosCol = collection(db, 'ingresos');
+    const gastosCol   = collection(db, 'gastos');
+    const configDoc   = doc(db, 'config', 'objetivos');
+
+    // ── Meses fijos ─────────────────────────────────────────
+    const MONTH_KEYS = [
+        '2026-03','2026-04','2026-05','2026-06','2026-07','2026-08','2026-09',
+        '2026-10','2026-11','2026-12','2027-01','2027-02','2027-03'
+    ];
+    const MONTH_LABELS = {
+        '2026-03':'Marzo 2026',     '2026-04':'Abril 2026',
+        '2026-05':'Mayo 2026',      '2026-06':'Junio 2026',
+        '2026-07':'Julio 2026',     '2026-08':'Agosto 2026',
+        '2026-09':'Septiembre 2026','2026-10':'Octubre 2026',
+        '2026-11':'Noviembre 2026', '2026-12':'Diciembre 2026',
+        '2027-01':'Enero 2027',     '2027-02':'Febrero 2027',
+        '2027-03':'Marzo 2027'
+    };
+
+    // ── State ────────────────────────────────────────────────
+    let data = { ingresos: [], gastos: [], objCarlos: 0, objKaren: 0 };
+
+    // ── Helpers ──────────────────────────────────────────────
+    const $   = id => document.getElementById(id);
+    const fmt = n  => '₲ ' + Number(n||0).toLocaleString('es-PY');
+
+    function badge(resp) {
+        const cls = resp==='Carlos'?'carlos':resp==='Karen'?'karen':'ambos';
+        return `<span class="badge badge-${cls}">${resp}</span>`;
+    }
+    function cardBorder(resp) {
+        return resp==='Carlos'?'carlos-card':resp==='Karen'?'karen-card':'';
+    }
+
+    // ── Build selects ────────────────────────────────────────
+    function buildSelects() {
+        ['ing-mes','gas-mes'].forEach(id => {
+            const sel = $(id); sel.innerHTML = '';
+            MONTH_KEYS.forEach(k => {
+                const o = document.createElement('option');
+                o.value = k; o.textContent = MONTH_LABELS[k];
+                if (k === '2026-03') o.selected = true;
+                sel.appendChild(o);
+            });
+        });
+        ['dashMes','ing-filter','gas-filter'].forEach(id => {
+            const sel = $(id);
+            sel.innerHTML = '<option value="all">Todos los meses</option>';
+            MONTH_KEYS.forEach(k => {
+                const o = document.createElement('option');
+                o.value = k; o.textContent = MONTH_LABELS[k];
+                if (k === '2026-03') o.selected = true;
+                sel.appendChild(o);
+            });
+        });
+    }
+
+    // ── Tab navigation ───────────────────────────────────────
+    window.showTab = function(name, btn) {
+        document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+        $(name).classList.add('active');
+        btn.classList.add('active');
+    };
+
+    // ── Responsable selector ─────────────────────────────────
+    window.selResp = function(prefix, valor) {
+        $(`${prefix}-resp`).value = valor;
+        document.querySelectorAll(`#${prefix}-resp-sel .resp-btn`).forEach(b => {
+            b.className = 'resp-btn';
+            if (b.textContent.trim()===valor) b.classList.add(`sel-${valor.toLowerCase()}`);
+        });
+    };
+
+    // ── Agregar Ingreso ──────────────────────────────────────
+    window.agregarIngreso = async function() {
+        const nombre = $('ing-nombre').value.trim();
+        const monto  = parseFloat($('ing-monto').value);
+        const resp   = $('ing-resp').value;
+        const mes    = $('ing-mes').value;
+        if (!nombre || !monto || monto <= 0) { alert('Completá todos los campos'); return; }
+
+        const btn = $('btn-add-ing');
+        btn.disabled = true; btn.textContent = 'Guardando…';
+
+        await addDoc(ingresosCol, { nombre, monto, resp, mes, createdAt: Date.now() });
+
+        btn.disabled = false; btn.textContent = 'Agregar Ingreso';
+        $('ing-nombre').value = ''; $('ing-monto').value = '';
+    };
+
+    window.eliminarIngreso = async function(id) {
+        if (!confirm('¿Eliminar este ingreso?')) return;
+        await deleteDoc(doc(db, 'ingresos', id));
+    };
+
+    // ── Agregar Gasto ────────────────────────────────────────
+    window.agregarGasto = async function() {
+        const cat  = $('gas-cat').value;
+        const desc = $('gas-desc').value.trim();
+        const monto= parseFloat($('gas-monto').value);
+        const resp = $('gas-resp').value;
+        const mes  = $('gas-mes').value;
+        if (!monto || monto <= 0) { alert('Ingresá un monto válido'); return; }
+
+        const btn = $('btn-add-gas');
+        btn.disabled = true; btn.textContent = 'Guardando…';
+
+        await addDoc(gastosCol, { cat, desc: desc||cat, monto, resp, mes, createdAt: Date.now() });
+
+        btn.disabled = false; btn.textContent = 'Agregar Gasto';
+        $('gas-desc').value = ''; $('gas-monto').value = '';
+    };
+
+    window.eliminarGasto = async function(id) {
+        if (!confirm('¿Eliminar este gasto?')) return;
+        await deleteDoc(doc(db, 'gastos', id));
+    };
+
+    // ── Guardar objetivos ────────────────────────────────────
+    window.guardarObjetivos = async function() {
+        const c = parseFloat($('e-obj-carlos').value);
+        const k = parseFloat($('e-obj-karen').value);
+        if ((!c||c<=0) && (!k||k<=0)) { alert('Ingresá al menos un objetivo'); return; }
+        const update = {};
+        if (c && c>0) { update.objCarlos = c; data.objCarlos = c; }
+        if (k && k>0) { update.objKaren  = k; data.objKaren  = k; }
+        await setDoc(configDoc, update, { merge: true });
+        updateAll();
+    };
+
+    // ── Cálculos ─────────────────────────────────────────────
+    function aportesPorPersona() {
+        const c = { Carlos: 0, Karen: 0 };
+        data.ingresos.forEach(i => {
+            if (i.resp==='Carlos') c.Carlos += i.monto;
+            else if (i.resp==='Karen') c.Karen += i.monto;
+        });
+        data.gastos.forEach(g => {
+            if (g.resp==='Carlos') c.Carlos -= g.monto;
+            else if (g.resp==='Karen') c.Karen -= g.monto;
+        });
+        return c;
+    }
+
+    function ahorroMesPorPersona(persona) {
+        const meses = {};
+        MONTH_KEYS.forEach(k => meses[k] = 0);
+        data.ingresos.forEach(i => { if (i.resp===persona && meses[i.mes]!==undefined) meses[i.mes] += i.monto; });
+        data.gastos.forEach(g   => { if (g.resp===persona && meses[g.mes]!==undefined) meses[g.mes] -= g.monto; });
+        return meses;
+    }
+
+    // ── Render Europa ────────────────────────────────────────
+    function renderEuropa() {
+        const ap = aportesPorPersona();
+
+        if (data.objCarlos > 0) $('e-obj-carlos').value = data.objCarlos;
+        if (data.objKaren  > 0) $('e-obj-karen').value  = data.objKaren;
+
+        function renderPersonaBanner(persona, acum, objetivo, fillId, labelId, pctId, mesGridId, dFillId, dLabelId, dPctId) {
+            const pct = objetivo > 0 ? Math.min(100, Math.max(0, (acum/objetivo)*100)) : 0;
+            const lbl = `${fmt(acum)} de ${fmt(objetivo)} ahorrado`;
+
+            const setEl = (id, fn) => { const el=$(id); if(el) fn(el); };
+            setEl(fillId,   el => el.style.width = pct+'%');
+            setEl(labelId,  el => el.textContent = lbl);
+            setEl(pctId,    el => el.textContent = pct.toFixed(0)+'%');
+            setEl(dFillId,  el => el.style.width = pct+'%');
+            setEl(dLabelId, el => el.textContent = `${fmt(acum)} / ${fmt(objetivo)}`);
+            setEl(dPctId,   el => el.textContent = pct.toFixed(0)+'%');
+
+            const grid = $(mesGridId);
+            if (!grid) return;
+            const meses = ahorroMesPorPersona(persona);
+            const hayDatos = Object.values(meses).some(v => v !== 0);
+            if (!hayDatos) {
+                grid.innerHTML = '<div style="color:rgba(255,255,255,0.5);font-style:italic;font-size:0.85em;padding-top:8px;grid-column:1/-1;">Sin datos aún.</div>';
+                return;
+            }
+            let running = 0;
+            grid.innerHTML = MONTH_KEYS.map(k => {
+                const v = meses[k] || 0; running += v;
+                const col    = v>=0      ? '#a8e6cf' : '#ffb3b3';
+                const accCol = running>=0 ? '#a8e6cf' : '#ffb3b3';
+                return `<div class="mes-card">
+                    <div class="mes-card-name">${MONTH_LABELS[k]}</div>
+                    <div class="mes-card-ahorro" style="color:${col}">${v>=0?'+':''}${fmt(v)}</div>
+                    <div class="mes-card-acum">Acum: <span style="color:${accCol}">${fmt(running)}</span></div>
+                </div>`;
+            }).join('');
+        }
+
+        renderPersonaBanner('Carlos', ap.Carlos, data.objCarlos,
+            'e-carlos-fill','e-carlos-label','e-carlos-pct','e-carlos-meses',
+            'd-carlos-fill','d-carlos-label','d-carlos-pct');
+
+        renderPersonaBanner('Karen', ap.Karen, data.objKaren,
+            'e-karen-fill','e-karen-label','e-karen-pct','e-karen-meses',
+            'd-karen-fill','d-karen-label','d-karen-pct');
+
+        const sEuropa = $('s-europa-acum');
+        if (sEuropa) sEuropa.textContent = fmt(ap.Carlos + ap.Karen);
+    }
+
+    // ── Render listas ────────────────────────────────────────
+    function renderIngresosList() {
+        const f = $('ing-filter').value;
+        const lista = (f==='all' ? data.ingresos : data.ingresos.filter(i=>i.mes===f))
+            .sort((a,b) => b.mes.localeCompare(a.mes));
+        $('ing-lista').innerHTML = lista.length
+            ? lista.map(i=>`
+                <div class="item-card ${cardBorder(i.resp)}">
+                    <div class="item-info">
+                        <div class="item-name">💼 ${i.nombre} ${badge(i.resp)}</div>
+                        <div class="item-meta">${MONTH_LABELS[i.mes]}</div>
+                        <div class="item-amount">${fmt(i.monto)}</div>
+                    </div>
+                    <button class="btn btn-danger btn-small" onclick="eliminarIngreso('${i.id}')">Eliminar</button>
+                </div>`).join('')
+            : '<p class="empty-state">Sin ingresos para el filtro seleccionado</p>';
+    }
+
+    function renderGastosList() {
+        const f = $('gas-filter').value;
+        const lista = (f==='all' ? data.gastos : data.gastos.filter(g=>g.mes===f))
+            .sort((a,b) => b.mes.localeCompare(a.mes));
+        $('gas-lista').innerHTML = lista.length
+            ? lista.map(g=>`
+                <div class="item-card ${cardBorder(g.resp)}">
+                    <div class="item-info">
+                        <div class="item-name">${g.cat} ${badge(g.resp)}</div>
+                        <div class="item-desc">${g.desc}</div>
+                        <div class="item-meta">${MONTH_LABELS[g.mes]}</div>
+                        <div class="item-amount">${fmt(g.monto)}</div>
+                    </div>
+                    <button class="btn btn-danger btn-small" onclick="eliminarGasto('${g.id}')">Eliminar</button>
+                </div>`).join('')
+            : '<p class="empty-state">Sin gastos para el filtro seleccionado</p>';
+    }
+
+    // ── Dashboard ────────────────────────────────────────────
+    function updateDashboard() {
+        const f    = $('dashMes').value;
+        const ings = f==='all' ? data.ingresos : data.ingresos.filter(i=>i.mes===f);
+        const gas  = f==='all' ? data.gastos   : data.gastos.filter(g=>g.mes===f);
+
+        const totalIng = ings.reduce((s,i)=>s+i.monto, 0);
+        const totalGas = gas.reduce((s,g)=>s+g.monto, 0);
+        const ahorro   = totalIng - totalGas;
+
+        $('dashLabel').textContent  = f==='all' ? 'Todos los meses' : MONTH_LABELS[f];
+        $('s-ingresos').textContent = fmt(totalIng);
+        $('s-gastos').textContent   = fmt(totalGas);
+        const ae = $('s-ahorro');
+        ae.textContent = fmt(ahorro);
+        ae.style.color = ahorro>=0 ? 'rgba(255,255,255,0.95)' : '#f08080';
+
+        // Gastos por categoría
+        const porCat = {};
+        gas.forEach(g=>{ porCat[g.cat]=(porCat[g.cat]||0)+g.monto; });
+        $('d-gastos-cat').innerHTML = Object.keys(porCat).length
+            ? Object.entries(porCat).sort((a,b)=>b[1]-a[1]).map(([c,m])=>`
+                <div class="list-row">
+                    <span class="list-row-label">${c}</span>
+                    <span class="list-row-value">${fmt(m)}</span>
+                </div>`).join('')
+            : '<p class="empty-state">Sin gastos</p>';
+
+        // Ingresos
+        $('d-ingresos-lista').innerHTML = ings.length
+            ? ings.map(i=>`
+                <div class="list-row">
+                    <span class="list-row-label">💼 ${i.nombre} ${badge(i.resp)}</span>
+                    <span class="list-row-value">${fmt(i.monto)}</span>
+                </div>`).join('')
+            : '<p class="empty-state">Sin ingresos</p>';
+
+        // Balance por persona
+        const personas = ['Carlos','Karen','Ambos'];
+        const rows = personas.map(p=>{
+            const pI = ings.filter(i=>i.resp===p).reduce((s,i)=>s+i.monto,0);
+            const pG = gas.filter(g=>g.resp===p).reduce((s,g)=>s+g.monto,0);
+            if(!pI && !pG) return '';
+            const bal = pI - pG;
+            const col = bal>=0 ? 'var(--success)' : 'var(--danger)';
+            return `<div class="persona-row">
+                <span>${badge(p)} <strong>${p}</strong></span>
+                <span style="font-size:0.9em;color:var(--success)">+${fmt(pI)}</span>
+                <span style="font-size:0.9em;color:var(--danger)">-${fmt(pG)}</span>
+                <span style="font-size:0.9em;color:${col};font-weight:700">${bal>=0?'+':''}${fmt(bal)}</span>
+            </div>`;
+        }).join('');
+        $('d-personas').innerHTML = rows || '<p class="empty-state">Sin datos</p>';
+
+        renderEuropa();
+    }
+
+    function updateAll() {
+        updateDashboard();
+        renderIngresosList();
+        renderGastosList();
+        renderEuropa();
+    }
+
+    // ── Firebase listeners (tiempo real) ─────────────────────
+    function init() {
+        buildSelects();
+
+        // Cargar objetivos
+        getDoc(configDoc).then(snap => {
+            if (snap.exists()) {
+                const d = snap.data();
+                data.objCarlos = d.objCarlos || 0;
+                data.objKaren  = d.objKaren  || 0;
+            }
+            updateAll();
+        });
+
+        // Listener ingresos
+        onSnapshot(ingresosCol, snap => {
+            data.ingresos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            updateAll();
+        });
+
+        // Listener gastos
+        onSnapshot(gastosCol, snap => {
+            data.gastos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            updateAll();
+        });
+
+        // Ocultar loading
+        const overlay = document.getElementById('loading-overlay');
+        overlay.classList.add('hide');
+        setTimeout(() => overlay.style.display='none', 500);
+    }
+
+    init();
+</script>
+</body>
+</html>
