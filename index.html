@@ -686,9 +686,6 @@
         renderPersonaBanner('Karen', ap.Karen, data.objKaren,
             'e-karen-fill','e-karen-label','e-karen-pct','e-karen-meses',
             'd-karen-fill','d-karen-label','d-karen-pct');
-
-        const sEuropa = $('s-europa-acum');
-        if (sEuropa) sEuropa.textContent = fmt(ap.Carlos + ap.Karen);
     }
 
     // ── Render listas ────────────────────────────────────────
@@ -730,6 +727,8 @@
     // ── Dashboard ────────────────────────────────────────────
     function updateDashboard() {
         const f    = $('dashMes').value;
+
+        // Datos filtrados por mes (para ingresos/gastos/ahorro del período)
         const ings = f==='all' ? data.ingresos : data.ingresos.filter(i=>i.mes===f);
         const gas  = f==='all' ? data.gastos   : data.gastos.filter(g=>g.mes===f);
 
@@ -737,12 +736,23 @@
         const totalGas = gas.reduce((s,g)=>s+g.monto, 0);
         const ahorro   = totalIng - totalGas;
 
-        $('dashLabel').textContent  = f==='all' ? 'Todos los meses' : MONTH_LABELS[f];
+        // Label del período
+        const periodoLabel = f==='all' ? 'Todos los meses' : MONTH_LABELS[f];
+        $('dashLabel').textContent = periodoLabel;
+
+        // Actualizar cards del período (siempre desde 0 para el mes seleccionado)
         $('s-ingresos').textContent = fmt(totalIng);
         $('s-gastos').textContent   = fmt(totalGas);
+
         const ae = $('s-ahorro');
         ae.textContent = fmt(ahorro);
         ae.style.color = ahorro>=0 ? 'rgba(255,255,255,0.95)' : '#f08080';
+
+        // Europa acumulado = SIEMPRE suma de todos los meses, no cambia con el filtro
+        const ap = aportesPorPersona();
+        const europaAcum = ap.Carlos + ap.Karen;
+        const sEuropa = $('s-europa-acum');
+        if (sEuropa) sEuropa.textContent = fmt(europaAcum);
 
         // Gastos por categoría
         const porCat = {};
