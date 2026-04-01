@@ -174,8 +174,103 @@
         .list-row-label { font-weight: 600; color: var(--text); flex: 1; }
         .list-row-value { font-family: 'Playfair Display', serif; font-weight: 600; color: var(--secondary); white-space: nowrap; }
 
-        .persona-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(212,201,184,0.3); gap: 10px; flex-wrap: wrap; }
-        .persona-row:last-child { border-bottom: none; }
+        .persona-card {
+            border: 1px solid rgba(212,201,184,0.55);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.55);
+            padding: 14px 16px;
+            margin-bottom: 12px;
+        }
+        .persona-card:last-child { margin-bottom: 0; }
+        .persona-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+        .persona-name-wrap { display:flex; align-items:center; gap:8px; }
+        .persona-neto {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2em;
+            font-weight: 700;
+        }
+        .persona-resumen-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0,1fr));
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .persona-kpi {
+            background: rgba(248,246,241,0.8);
+            border: 1px solid rgba(212,201,184,0.35);
+            border-radius: 10px;
+            padding: 10px 12px;
+        }
+        .persona-kpi-label {
+            font-size: 0.78em;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            color: var(--secondary);
+            opacity: 0.85;
+            margin-bottom: 4px;
+        }
+        .persona-kpi-value {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.05em;
+            font-weight: 700;
+        }
+        .persona-kpi-value.ingreso { color: var(--success); }
+        .persona-kpi-value.gasto { color: var(--danger); }
+        .persona-kpi-value.neto-pos { color: var(--success); }
+        .persona-kpi-value.neto-neg { color: var(--danger); }
+        .persona-actions { display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; }
+        .persona-toggle {
+            background: rgba(255,255,255,0.75);
+            color: var(--primary);
+            border: 1px solid rgba(212,201,184,0.7);
+            font-family: 'Playfair Display', serif;
+            font-size: 0.95em;
+            padding: 8px 14px;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+        .persona-toggle:hover { border-color: var(--accent); transform: translateY(-1px); }
+        .persona-share { font-size: 0.9em; color: var(--secondary); font-style: italic; }
+        .persona-detalle {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px dashed rgba(212,201,184,0.8);
+            display: none;
+        }
+        .persona-detalle.open { display: block; }
+        .detalle-columns { display:grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .detalle-block {
+            background: rgba(248,246,241,0.75);
+            border: 1px solid rgba(212,201,184,0.35);
+            border-radius: 10px;
+            padding: 12px;
+        }
+        .detalle-title {
+            font-family: 'Playfair Display', serif;
+            color: var(--primary);
+            font-size: 1em;
+            margin-bottom: 8px;
+        }
+        .detalle-row {
+            display:flex;
+            justify-content:space-between;
+            align-items:flex-start;
+            gap:8px;
+            padding:8px 0;
+            border-bottom:1px solid rgba(212,201,184,0.35);
+        }
+        .detalle-row:last-child { border-bottom:none; }
+        .detalle-meta { flex:1; }
+        .detalle-name { font-weight:600; color: var(--text); }
+        .detalle-sub { font-size:0.82em; color: var(--secondary); opacity:0.9; }
+        .detalle-value {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .detalle-value.ingreso { color: var(--success); }
+        .detalle-value.gasto { color: var(--danger); }
 
         /* Forms */
         .form-section { background: rgba(255,255,255,0.95); padding: 26px; border-radius: 12px; margin-bottom: 24px; box-shadow: 0 8px 24px rgba(26,60,52,0.10); border: 1px solid var(--border); }
@@ -218,6 +313,116 @@
 
         .empty-state { text-align: center; opacity: 0.5; padding: 16px 0; font-style: italic; }
 
+
+        /* ── Global filter ── */
+        .global-filter {
+            background: linear-gradient(135deg, rgba(26,60,52,0.06), rgba(26,60,52,0.03));
+            border-color: rgba(26,60,52,0.2);
+            margin-bottom: 20px;
+        }
+        .filter-tag-pill {
+            font-size: 0.88em; color: var(--secondary);
+            font-style: italic; opacity: 0.8;
+        }
+
+        /* ── Cierre de mes banner ── */
+        .cierre-banner {
+            border-radius: 12px;
+            margin-bottom: 26px;
+            padding: 20px 26px;
+            border: 1px solid var(--border);
+            background: rgba(255,255,255,0.9);
+            box-shadow: 0 4px 16px rgba(26,60,52,0.08);
+        }
+        .cierre-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 14px;
+            margin-top: 14px;
+        }
+        .cierre-item {
+            background: rgba(248,246,241,0.85);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 16px;
+            text-align: center;
+        }
+        .cierre-label {
+            font-size: 0.78em;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--secondary);
+            opacity: 0.8;
+            margin-bottom: 6px;
+        }
+        .cierre-value {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3em;
+            font-weight: 700;
+        }
+        .cierre-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2em;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .semaforo {
+            display: inline-block;
+            width: 12px; height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .semaforo-verde  { background: #4caf50; box-shadow: 0 0 6px #4caf50; }
+        .semaforo-amarillo { background: #ff9800; box-shadow: 0 0 6px #ff9800; }
+        .semaforo-rojo   { background: #f44336; box-shadow: 0 0 6px #f44336; }
+
+        .proyeccion-row {
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px dashed var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            font-size: 1em;
+            color: var(--secondary);
+        }
+        .proyeccion-highlight {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        /* ── Toast ── */
+        .toast {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            background: var(--primary);
+            color: white;
+            padding: 12px 22px;
+            border-radius: 10px;
+            font-family: 'Playfair Display', serif;
+            font-size: 1em;
+            box-shadow: 0 8px 24px rgba(26,60,52,0.3);
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            pointer-events: none;
+            z-index: 9998;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            .cierre-grid { grid-template-columns: 1fr 1fr; }
+            .detalle-columns { grid-template-columns: 1fr !important; }
+        }
+
         @keyframes fadeInDown { from { opacity:0; transform:translateY(-30px); } to { opacity:1; transform:translateY(0); } }
         @keyframes fadeIn     { from { opacity:0; } to { opacity:1; } }
 
@@ -227,6 +432,7 @@
             .tabs { flex-direction: column; }
             .tab-btn { width: 100%; }
             .summary-grid { grid-template-columns: 1fr 1fr; }
+            .persona-resumen-grid, .detalle-columns { grid-template-columns: 1fr; }
             .form-row, .form-row-3 { grid-template-columns: 1fr; }
         }
     </style>
@@ -251,6 +457,13 @@
         </div>
     </header>
 
+    <!-- Filtro global -->
+    <div class="filter-bar global-filter">
+        <label>📅 Período:</label>
+        <select id="globalMes" onchange="onGlobalFilterChange()"></select>
+        <span id="global-filter-tag" class="filter-tag-pill"></span>
+    </div>
+
     <div class="tabs">
         <button class="tab-btn active" onclick="showTab('dashboard',this)">📊 Dashboard</button>
         <button class="tab-btn" onclick="showTab('ingresos',this)">💵 Ingresos</button>
@@ -261,9 +474,9 @@
     <!-- ══════════════════ DASHBOARD ══════════════════ -->
     <div id="dashboard" class="tab-content active">
 
-        <div class="filter-bar">
-            <label>📅 Ver mes:</label>
-            <select id="dashMes" onchange="updateDashboard()"></select>
+        <!-- Cierre de mes / proyección -->
+        <div id="cierre-mes-banner" style="display:none;" class="cierre-banner">
+            <div id="cierre-mes-content"></div>
         </div>
 
         <div class="summary-section">
@@ -283,7 +496,7 @@
                     <div class="summary-value" id="s-ahorro">₲ 0</div>
                 </div>
                 <div class="summary-item">
-                    <div class="summary-label">→ Europa (acum.)</div>
+                    <div class="summary-label" id="s-europa-label">→ Europa</div>
                     <div class="summary-value" id="s-europa-acum">₲ 0</div>
                 </div>
             </div>
@@ -358,10 +571,6 @@
             <button class="btn" id="btn-add-ing" onclick="agregarIngreso()">Agregar Ingreso</button>
         </div>
 
-        <div class="filter-bar">
-            <label>📅 Filtrar:</label>
-            <select id="ing-filter" onchange="renderIngresosList()"></select>
-        </div>
         <div class="form-section">
             <h2 class="form-title">Lista de Ingresos</h2>
             <div id="ing-lista" class="item-list"></div>
@@ -412,10 +621,6 @@
             <button class="btn" id="btn-add-gas" onclick="agregarGasto()">Agregar Gasto</button>
         </div>
 
-        <div class="filter-bar">
-            <label>📅 Filtrar:</label>
-            <select id="gas-filter" onchange="renderGastosList()"></select>
-        </div>
         <div class="form-section">
             <h2 class="form-title">Lista de Gastos</h2>
             <div id="gas-lista" class="item-list"></div>
@@ -466,6 +671,9 @@
 
 </div><!-- /container -->
 
+<!-- Toast notification -->
+<div id="toast" class="toast"></div>
+
 <!-- Firebase SDK -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
@@ -507,6 +715,7 @@
 
     // ── State ────────────────────────────────────────────────
     let data = { ingresos: [], gastos: [], objCarlos: 0, objKaren: 0 };
+    let detalleAbierto = {};
 
     // ── Helpers ──────────────────────────────────────────────
     const $   = id => document.getElementById(id);
@@ -522,6 +731,7 @@
 
     // ── Build selects ────────────────────────────────────────
     function buildSelects() {
+        // Input selects (sin "todos")
         ['ing-mes','gas-mes'].forEach(id => {
             const sel = $(id); sel.innerHTML = '';
             MONTH_KEYS.forEach(k => {
@@ -531,16 +741,33 @@
                 sel.appendChild(o);
             });
         });
-        ['dashMes','ing-filter','gas-filter'].forEach(id => {
-            const sel = $(id);
-            sel.innerHTML = '<option value="all">Todos los meses</option>';
-            MONTH_KEYS.forEach(k => {
-                const o = document.createElement('option');
-                o.value = k; o.textContent = MONTH_LABELS[k];
-                if (k === '2026-03') o.selected = true;
-                sel.appendChild(o);
-            });
+        // Filtro global único
+        const gsel = $('globalMes');
+        gsel.innerHTML = '<option value="all">Todos los meses (acumulado)</option>';
+        MONTH_KEYS.forEach(k => {
+            const o = document.createElement('option');
+            o.value = k; o.textContent = MONTH_LABELS[k];
+            // pre-select current month if in range
+            const now = new Date();
+            const curKey = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+            if (k === curKey) o.selected = true;
+            gsel.appendChild(o);
         });
+        updateFilterTag();
+    }
+
+    function getGlobalFilter() { return $('globalMes').value; }
+
+    function onGlobalFilterChange() {
+        updateFilterTag();
+        updateAll();
+    }
+
+    function updateFilterTag() {
+        const f = getGlobalFilter();
+        const tag = $('global-filter-tag');
+        if (!tag) return;
+        tag.textContent = f === 'all' ? 'Vista acumulada de todos los meses' : 'Mostrando solo ' + MONTH_LABELS[f];
     }
 
     // ── Tab navigation ───────────────────────────────────────
@@ -575,6 +802,7 @@
 
         btn.disabled = false; btn.textContent = 'Agregar Ingreso';
         $('ing-nombre').value = ''; $('ing-monto').value = '';
+        showToast('✓ Ingreso guardado');
     };
 
     window.eliminarIngreso = async function(id) {
@@ -598,6 +826,7 @@
 
         btn.disabled = false; btn.textContent = 'Agregar Gasto';
         $('gas-desc').value = ''; $('gas-monto').value = '';
+        showToast('✓ Gasto guardado');
     };
 
     window.eliminarGasto = async function(id) {
@@ -614,6 +843,7 @@
         if (c && c>0) { update.objCarlos = c; data.objCarlos = c; }
         if (k && k>0) { update.objKaren  = k; data.objKaren  = k; }
         await setDoc(configDoc, update, { merge: true });
+        showToast('✓ Objetivos guardados');
         updateAll();
     };
 
@@ -637,6 +867,143 @@
         data.ingresos.forEach(i => { if (i.resp===persona && meses[i.mes]!==undefined) meses[i.mes] += i.monto; });
         data.gastos.forEach(g   => { if (g.resp===persona && meses[g.mes]!==undefined) meses[g.mes] -= g.monto; });
         return meses;
+    }
+
+    function aportesPorPersonaFiltrado(ings, gas) {
+        const c = { Carlos: 0, Karen: 0, Ambos: 0 };
+        ings.forEach(i => {
+            if (c[i.resp] !== undefined) c[i.resp] += i.monto;
+        });
+        gas.forEach(g => {
+            if (c[g.resp] !== undefined) c[g.resp] -= g.monto;
+        });
+        return c;
+    }
+
+    function detallePersona(persona, ings, gas) {
+        return {
+            ingresos: ings.filter(i => i.resp === persona).sort((a,b) => (a.mes || '').localeCompare(b.mes || '') || (a.nombre || '').localeCompare(b.nombre || '')),
+            gastos: gas.filter(g => g.resp === persona).sort((a,b) => (a.mes || '').localeCompare(b.mes || '') || (a.desc || '').localeCompare(b.desc || ''))
+        };
+    }
+
+    function shareDelTotal(bal, total) {
+        if (!total) return 'Sin participación neta aún';
+        const pct = Math.abs((bal / total) * 100);
+        return `Participación neta: ${pct.toFixed(0)}% del total visible`;
+    }
+
+    window.togglePersonaDetalle = function(persona) {
+        detalleAbierto[persona] = !detalleAbierto[persona];
+        updateDashboard();
+    };
+
+    // ── Toast ────────────────────────────────────────────────
+    let toastTimer = null;
+    function showToast(msg) {
+        const t = $('toast');
+        if (!t) return;
+        t.textContent = msg;
+        t.classList.add('show');
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+    }
+
+    // ── Cierre de mes y proyección ──────────────────────────
+    function renderCierreMes(f, ings, gas) {
+        const banner  = $('cierre-mes-banner');
+        const content = $('cierre-mes-content');
+        if (!banner || !content) return;
+
+        const totalIng = ings.reduce((s,i)=>s+i.monto,0);
+        const totalGas = gas.reduce((s,g)=>s+g.monto,0);
+        const ahorro   = totalIng - totalGas;
+
+        // Proyección: ritmo mensual promedio vs lo que falta
+        const ap       = aportesPorPersona();
+        const acumTotal = ap.Carlos + ap.Karen;
+        const objTotal  = (data.objCarlos||0) + (data.objKaren||0);
+        const falta     = Math.max(0, objTotal - acumTotal);
+
+        // Calcular meses con datos para promedio
+        const mesesConDatos = MONTH_KEYS.filter(k => {
+            const i = data.ingresos.filter(x=>x.mes===k).reduce((s,x)=>s+x.monto,0);
+            const g = data.gastos.filter(x=>x.mes===k).reduce((s,x)=>s+x.monto,0);
+            return (i-g) !== 0;
+        });
+        const promMensual = mesesConDatos.length > 0 ? acumTotal / mesesConDatos.length : 0;
+
+        let proyeccionHTML = '';
+        if (objTotal > 0 && promMensual > 0 && falta > 0) {
+            const mesesRestantes = Math.ceil(falta / promMensual);
+            const fechaLlegada = new Date();
+            fechaLlegada.setMonth(fechaLlegada.getMonth() + mesesRestantes);
+            const mesLlegada = MONTH_LABELS[
+                fechaLlegada.getFullYear()+'-'+String(fechaLlegada.getMonth()+1).padStart(2,'0')
+            ] || `${fechaLlegada.toLocaleDateString('es-PY',{month:'long',year:'numeric'})}`;
+
+            proyeccionHTML = `
+                <div class="proyeccion-row">
+                    <span>✈️ Al ritmo actual (<span class="proyeccion-highlight">${fmt(promMensual)}/mes</span>),
+                    llegarían al objetivo en <span class="proyeccion-highlight">~${mesesRestantes} meses</span>
+                    — aprox. <span class="proyeccion-highlight">${mesLlegada}</span>.</span>
+                </div>`;
+        } else if (objTotal > 0 && falta <= 0) {
+            proyeccionHTML = `<div class="proyeccion-row">🎉 <span class="proyeccion-highlight">¡Objetivo alcanzado!</span> Ya tienen suficiente para el viaje.</div>`;
+        } else if (objTotal === 0) {
+            proyeccionHTML = `<div class="proyeccion-row" style="opacity:0.6;">Configurá el objetivo del viaje en el tab ✈️ Europa para ver la proyección.</div>`;
+        }
+
+        // Semáforo: necesitan ahorrar objTotal/13 por mes
+        const ritmoNecesario = objTotal > 0 ? objTotal / 13 : 0;
+        let semColor = 'semaforo-rojo', semMsg = 'Por debajo del ritmo necesario';
+        if (ahorro >= ritmoNecesario * 1.0) { semColor = 'semaforo-verde'; semMsg = 'En camino al objetivo'; }
+        else if (ahorro >= ritmoNecesario * 0.7) { semColor = 'semaforo-amarillo'; semMsg = 'Ligeramente por debajo'; }
+
+        if (f === 'all') {
+            banner.style.display = 'block';
+            content.innerHTML = `
+                <div class="cierre-title">
+                    📊 Resumen acumulado
+                </div>
+                <div class="cierre-grid">
+                    <div class="cierre-item">
+                        <div class="cierre-label">Total ingresos</div>
+                        <div class="cierre-value" style="color:var(--success)">${fmt(totalIng)}</div>
+                    </div>
+                    <div class="cierre-item">
+                        <div class="cierre-label">Total gastos</div>
+                        <div class="cierre-value" style="color:var(--danger)">${fmt(totalGas)}</div>
+                    </div>
+                    <div class="cierre-item">
+                        <div class="cierre-label">Ahorro neto total</div>
+                        <div class="cierre-value" style="color:${ahorro>=0?'var(--success)':'var(--danger)'}">${ahorro>=0?'+':''}${fmt(ahorro)}</div>
+                    </div>
+                </div>
+                ${proyeccionHTML}`;
+        } else {
+            banner.style.display = 'block';
+            content.innerHTML = `
+                <div class="cierre-title">
+                    <span class="semaforo ${semColor}"></span>
+                    Cierre de ${MONTH_LABELS[f]} — ${semMsg}
+                </div>
+                <div class="cierre-grid">
+                    <div class="cierre-item">
+                        <div class="cierre-label">Ingresos del mes</div>
+                        <div class="cierre-value" style="color:var(--success)">${fmt(totalIng)}</div>
+                    </div>
+                    <div class="cierre-item">
+                        <div class="cierre-label">Gastos del mes</div>
+                        <div class="cierre-value" style="color:var(--danger)">${fmt(totalGas)}</div>
+                    </div>
+                    <div class="cierre-item">
+                        <div class="cierre-label">Ahorro del mes</div>
+                        <div class="cierre-value" style="color:${ahorro>=0?'var(--success)':'var(--danger)'}">${ahorro>=0?'+':''}${fmt(ahorro)}</div>
+                    </div>
+                </div>
+                ${proyeccionHTML}`;
+        }
     }
 
     // ── Render Europa ────────────────────────────────────────
@@ -690,7 +1057,7 @@
 
     // ── Render listas ────────────────────────────────────────
     function renderIngresosList() {
-        const f = $('ing-filter').value;
+        const f = getGlobalFilter();
         const lista = (f==='all' ? data.ingresos : data.ingresos.filter(i=>i.mes===f))
             .sort((a,b) => b.mes.localeCompare(a.mes));
         $('ing-lista').innerHTML = lista.length
@@ -707,7 +1074,7 @@
     }
 
     function renderGastosList() {
-        const f = $('gas-filter').value;
+        const f = getGlobalFilter();
         const lista = (f==='all' ? data.gastos : data.gastos.filter(g=>g.mes===f))
             .sort((a,b) => b.mes.localeCompare(a.mes));
         $('gas-lista').innerHTML = lista.length
@@ -726,9 +1093,7 @@
 
     // ── Dashboard ────────────────────────────────────────────
     function updateDashboard() {
-        const f    = $('dashMes').value;
-
-        // Datos filtrados por mes (para ingresos/gastos/ahorro del período)
+        const f    = getGlobalFilter();
         const ings = f==='all' ? data.ingresos : data.ingresos.filter(i=>i.mes===f);
         const gas  = f==='all' ? data.gastos   : data.gastos.filter(g=>g.mes===f);
 
@@ -736,11 +1101,9 @@
         const totalGas = gas.reduce((s,g)=>s+g.monto, 0);
         const ahorro   = totalIng - totalGas;
 
-        // Label del período
-        const periodoLabel = f==='all' ? 'Todos los meses' : MONTH_LABELS[f];
+        const periodoLabel = f==='all' ? 'Todos los meses (acumulado)' : MONTH_LABELS[f];
         $('dashLabel').textContent = periodoLabel;
 
-        // Actualizar cards del período (siempre desde 0 para el mes seleccionado)
         $('s-ingresos').textContent = fmt(totalIng);
         $('s-gastos').textContent   = fmt(totalGas);
 
@@ -748,13 +1111,16 @@
         ae.textContent = fmt(ahorro);
         ae.style.color = ahorro>=0 ? 'rgba(255,255,255,0.95)' : '#f08080';
 
-        // Europa acumulado = SIEMPRE suma de todos los meses, no cambia con el filtro
-        const ap = aportesPorPersona();
-        const europaAcum = ap.Carlos + ap.Karen;
+        const ap = aportesPorPersonaFiltrado(ings, gas);
+        const europaVisible = ap.Carlos + ap.Karen;
         const sEuropa = $('s-europa-acum');
-        if (sEuropa) sEuropa.textContent = fmt(europaAcum);
+        const sEuropaLabel = $('s-europa-label');
+        if (sEuropa) sEuropa.textContent = fmt(europaVisible);
+        if (sEuropaLabel) sEuropaLabel.textContent = f==='all' ? '→ Europa (acum.)' : '→ Europa (mes)';
 
-        // Gastos por categoría
+        // Cierre de mes / proyección
+        renderCierreMes(f, ings, gas);
+
         const porCat = {};
         gas.forEach(g=>{ porCat[g.cat]=(porCat[g.cat]||0)+g.monto; });
         $('d-gastos-cat').innerHTML = Object.keys(porCat).length
@@ -763,33 +1129,90 @@
                     <span class="list-row-label">${c}</span>
                     <span class="list-row-value">${fmt(m)}</span>
                 </div>`).join('')
-            : '<p class="empty-state">Sin gastos</p>';
+            : '<p class="empty-state">Sin gastos para el período seleccionado</p>';
 
-        // Ingresos
         $('d-ingresos-lista').innerHTML = ings.length
             ? ings.map(i=>`
                 <div class="list-row">
                     <span class="list-row-label">💼 ${i.nombre} ${badge(i.resp)}</span>
                     <span class="list-row-value">${fmt(i.monto)}</span>
                 </div>`).join('')
-            : '<p class="empty-state">Sin ingresos</p>';
+            : '<p class="empty-state">Sin ingresos para el período seleccionado</p>';
 
-        // Balance por persona
         const personas = ['Carlos','Karen','Ambos'];
+        const totalVisible = personas.reduce((acc,p) => acc + Math.max(0, ap[p] || 0), 0);
         const rows = personas.map(p=>{
             const pI = ings.filter(i=>i.resp===p).reduce((s,i)=>s+i.monto,0);
             const pG = gas.filter(g=>g.resp===p).reduce((s,g)=>s+g.monto,0);
             if(!pI && !pG) return '';
             const bal = pI - pG;
-            const col = bal>=0 ? 'var(--success)' : 'var(--danger)';
-            return `<div class="persona-row">
-                <span>${badge(p)} <strong>${p}</strong></span>
-                <span style="font-size:0.9em;color:var(--success)">+${fmt(pI)}</span>
-                <span style="font-size:0.9em;color:var(--danger)">-${fmt(pG)}</span>
-                <span style="font-size:0.9em;color:${col};font-weight:700">${bal>=0?'+':''}${fmt(bal)}</span>
+            const netoClass = bal >= 0 ? 'neto-pos' : 'neto-neg';
+            const detalle = detallePersona(p, ings, gas);
+            const abierto = !!detalleAbierto[p];
+            const ingresosHtml = detalle.ingresos.length
+                ? detalle.ingresos.map(i => `
+                    <div class="detalle-row">
+                        <div class="detalle-meta">
+                            <div class="detalle-name">${i.nombre}</div>
+                            <div class="detalle-sub">${MONTH_LABELS[i.mes] || i.mes}</div>
+                        </div>
+                        <div class="detalle-value ingreso">+${fmt(i.monto)}</div>
+                    </div>`).join('')
+                : '<div class="empty-state" style="padding:10px 0;">Sin ingresos visibles</div>';
+            const gastosHtml = detalle.gastos.length
+                ? detalle.gastos.map(g => `
+                    <div class="detalle-row">
+                        <div class="detalle-meta">
+                            <div class="detalle-name">${g.cat}</div>
+                            <div class="detalle-sub">${g.desc || 'Sin detalle'} · ${MONTH_LABELS[g.mes] || g.mes}</div>
+                        </div>
+                        <div class="detalle-value gasto">-${fmt(g.monto)}</div>
+                    </div>`).join('')
+                : '<div class="empty-state" style="padding:10px 0;">Sin gastos visibles</div>';
+
+            return `<div class="persona-card">
+                <div class="persona-top">
+                    <div class="persona-name-wrap">
+                        ${badge(p)}
+                        <strong>${p}</strong>
+                    </div>
+                    <div class="persona-neto ${netoClass}" style="color:${bal>=0?'var(--success)':'var(--danger)'};">
+                        ${bal>=0?'+':''}${fmt(bal)}
+                    </div>
+                </div>
+                <div class="persona-resumen-grid">
+                    <div class="persona-kpi">
+                        <div class="persona-kpi-label">Ingresos</div>
+                        <div class="persona-kpi-value ingreso">+${fmt(pI)}</div>
+                    </div>
+                    <div class="persona-kpi">
+                        <div class="persona-kpi-label">Gastos</div>
+                        <div class="persona-kpi-value gasto">-${fmt(pG)}</div>
+                    </div>
+                    <div class="persona-kpi">
+                        <div class="persona-kpi-label">Balance neto</div>
+                        <div class="persona-kpi-value ${netoClass}">${bal>=0?'+':''}${fmt(bal)}</div>
+                    </div>
+                </div>
+                <div class="persona-actions">
+                    <button class="persona-toggle" onclick="togglePersonaDetalle('${p}')">${abierto ? 'Ocultar detalle' : 'Ver detalle'}</button>
+                    <span class="persona-share">${shareDelTotal(bal, totalVisible)}</span>
+                </div>
+                <div class="persona-detalle ${abierto ? 'open' : ''}">
+                    <div class="detalle-columns">
+                        <div class="detalle-block">
+                            <div class="detalle-title">💵 Ingresos visibles</div>
+                            ${ingresosHtml}
+                        </div>
+                        <div class="detalle-block">
+                            <div class="detalle-title">💳 Gastos visibles</div>
+                            ${gastosHtml}
+                        </div>
+                    </div>
+                </div>
             </div>`;
         }).join('');
-        $('d-personas').innerHTML = rows || '<p class="empty-state">Sin datos</p>';
+        $('d-personas').innerHTML = rows || '<p class="empty-state">Sin datos para el período seleccionado</p>';
 
         renderEuropa();
     }
