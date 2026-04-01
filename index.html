@@ -741,18 +741,21 @@
                 sel.appendChild(o);
             });
         });
-        // Filtro global único
+        // Filtro global único — solo se construye una vez, NO fuerza selección
         const gsel = $('globalMes');
-        gsel.innerHTML = '<option value="all">Todos los meses (acumulado)</option>';
-        MONTH_KEYS.forEach(k => {
-            const o = document.createElement('option');
-            o.value = k; o.textContent = MONTH_LABELS[k];
-            // pre-select current month if in range
-            const now = new Date();
-            const curKey = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
-            if (k === curKey) o.selected = true;
-            gsel.appendChild(o);
-        });
+        // Si ya fue construido, no lo pisar (preserva la selección del usuario)
+        if (gsel.options.length === 0) {
+            const allOpt = document.createElement('option');
+            allOpt.value = 'all';
+            allOpt.textContent = 'Todos los meses (acumulado)';
+            allOpt.selected = true; // default: acumulado
+            gsel.appendChild(allOpt);
+            MONTH_KEYS.forEach(k => {
+                const o = document.createElement('option');
+                o.value = k; o.textContent = MONTH_LABELS[k];
+                gsel.appendChild(o);
+            });
+        }
         updateFilterTag();
     }
 
@@ -893,9 +896,34 @@
         return `Participación neta: ${pct.toFixed(0)}% del total visible`;
     }
 
-    window.togglePersonaDetalle = function(persona) {
-        detalleAbierto[persona] = !detalleAbierto[persona];
-        updateDashboard();
+    // Estado filtro por persona en ingresos/gastos
+    let personaFiltroActivo = 'all';
+
+    window.irADetallePersona = function(tab, persona) {
+        // Guardar filtro de persona activo
+        personaFiltroActivo = persona;
+        // Navegar al tab
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(tab).classList.add('active');
+        // Activar btn correcto
+        document.querySelectorAll('.tab-btn').forEach(b => {
+            if ((tab === 'ingresos' && b.textContent.includes('Ingresos')) ||
+                (tab === 'gastos'   && b.textContent.includes('Gastos'))) {
+                b.classList.add('active');
+            }
+        });
+        // Re-render la lista con el filtro de persona
+        if (tab === 'ingresos') renderIngresosList();
+        else renderGastosList();
+        // Scroll arriba
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    window.limpiarFiltroPersona = function() {
+        personaFiltroActivo = 'all';
+        renderIngresosList();
+        renderGastosList();
     };
 
     // ── Toast ────────────────────────────────────────────────
@@ -1058,9 +1086,19 @@
     // ── Render listas ────────────────────────────────────────
     function renderIngresosList() {
         const f = getGlobalFilter();
-        const lista = (f==='all' ? data.ingresos : data.ingresos.filter(i=>i.mes===f))
-            .sort((a,b) => b.mes.localeCompare(a.mes));
-        $('ing-lista').innerHTML = lista.length
+        let lista = f==='all' ? data.ingresos : data.ingresos.filter(i=>i.mes===f);
+        if (personaFiltroActivo !== 'all') lista = lista.filter(i => i.resp === personaFiltroActivo);
+        lista = lista.sort((a,b) => b.mes.localeCompare(a.mes));
+
+        // Banner de filtro activo
+        const banner = personaFiltroActivo !== 'all' ? `
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(248,246,241,0.9);border:1px solid var(--border);border-radius:8px;margin-bottom:14px;">
+                <span style="font-size:0.95em;color:var(--secondary);">Mostrando ingresos de</span>
+                ${badge(personaFiltroActivo)}
+                <button onclick="limpiarFiltroPersona()" style="margin-left:auto;background:none;border:1px solid var(--border);border-radius:6px;padding:4px 10px;cursor:pointer;font-family:'Crimson Text',serif;font-size:0.9em;color:var(--secondary);">✕ Ver todos</button>
+            </div>` : '';
+
+        $('ing-lista').innerHTML = banner + (lista.length
             ? lista.map(i=>`
                 <div class="item-card ${cardBorder(i.resp)}">
                     <div class="item-info">
@@ -1070,14 +1108,23 @@
                     </div>
                     <button class="btn btn-danger btn-small" onclick="eliminarIngreso('${i.id}')">Eliminar</button>
                 </div>`).join('')
-            : '<p class="empty-state">Sin ingresos para el filtro seleccionado</p>';
+            : '<p class="empty-state">Sin ingresos para el filtro seleccionado</p>');
     }
 
     function renderGastosList() {
         const f = getGlobalFilter();
-        const lista = (f==='all' ? data.gastos : data.gastos.filter(g=>g.mes===f))
-            .sort((a,b) => b.mes.localeCompare(a.mes));
-        $('gas-lista').innerHTML = lista.length
+        let lista = f==='all' ? data.gastos : data.gastos.filter(g=>g.mes===f);
+        if (personaFiltroActivo !== 'all') lista = lista.filter(g => g.resp === personaFiltroActivo);
+        lista = lista.sort((a,b) => b.mes.localeCompare(a.mes));
+
+        const banner = personaFiltroActivo !== 'all' ? `
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(248,246,241,0.9);border:1px solid var(--border);border-radius:8px;margin-bottom:14px;">
+                <span style="font-size:0.95em;color:var(--secondary);">Mostrando gastos de</span>
+                ${badge(personaFiltroActivo)}
+                <button onclick="limpiarFiltroPersona()" style="margin-left:auto;background:none;border:1px solid var(--border);border-radius:6px;padding:4px 10px;cursor:pointer;font-family:'Crimson Text',serif;font-size:0.9em;color:var(--secondary);">✕ Ver todos</button>
+            </div>` : '';
+
+        $('gas-lista').innerHTML = banner + (lista.length
             ? lista.map(g=>`
                 <div class="item-card ${cardBorder(g.resp)}">
                     <div class="item-info">
@@ -1088,7 +1135,7 @@
                     </div>
                     <button class="btn btn-danger btn-small" onclick="eliminarGasto('${g.id}')">Eliminar</button>
                 </div>`).join('')
-            : '<p class="empty-state">Sin gastos para el filtro seleccionado</p>';
+            : '<p class="empty-state">Sin gastos para el filtro seleccionado</p>');
     }
 
     // ── Dashboard ────────────────────────────────────────────
@@ -1147,29 +1194,6 @@
             if(!pI && !pG) return '';
             const bal = pI - pG;
             const netoClass = bal >= 0 ? 'neto-pos' : 'neto-neg';
-            const detalle = detallePersona(p, ings, gas);
-            const abierto = !!detalleAbierto[p];
-            const ingresosHtml = detalle.ingresos.length
-                ? detalle.ingresos.map(i => `
-                    <div class="detalle-row">
-                        <div class="detalle-meta">
-                            <div class="detalle-name">${i.nombre}</div>
-                            <div class="detalle-sub">${MONTH_LABELS[i.mes] || i.mes}</div>
-                        </div>
-                        <div class="detalle-value ingreso">+${fmt(i.monto)}</div>
-                    </div>`).join('')
-                : '<div class="empty-state" style="padding:10px 0;">Sin ingresos visibles</div>';
-            const gastosHtml = detalle.gastos.length
-                ? detalle.gastos.map(g => `
-                    <div class="detalle-row">
-                        <div class="detalle-meta">
-                            <div class="detalle-name">${g.cat}</div>
-                            <div class="detalle-sub">${g.desc || 'Sin detalle'} · ${MONTH_LABELS[g.mes] || g.mes}</div>
-                        </div>
-                        <div class="detalle-value gasto">-${fmt(g.monto)}</div>
-                    </div>`).join('')
-                : '<div class="empty-state" style="padding:10px 0;">Sin gastos visibles</div>';
-
             return `<div class="persona-card">
                 <div class="persona-top">
                     <div class="persona-name-wrap">
@@ -1195,20 +1219,8 @@
                     </div>
                 </div>
                 <div class="persona-actions">
-                    <button class="persona-toggle" onclick="togglePersonaDetalle('${p}')">${abierto ? 'Ocultar detalle' : 'Ver detalle'}</button>
-                    <span class="persona-share">${shareDelTotal(bal, totalVisible)}</span>
-                </div>
-                <div class="persona-detalle ${abierto ? 'open' : ''}">
-                    <div class="detalle-columns">
-                        <div class="detalle-block">
-                            <div class="detalle-title">💵 Ingresos visibles</div>
-                            ${ingresosHtml}
-                        </div>
-                        <div class="detalle-block">
-                            <div class="detalle-title">💳 Gastos visibles</div>
-                            ${gastosHtml}
-                        </div>
-                    </div>
+                    <button class="persona-toggle" onclick="irADetallePersona('ingresos','${p}')">💵 Ver ingresos</button>
+                    <button class="persona-toggle" onclick="irADetallePersona('gastos','${p}')">💳 Ver gastos</button>
                 </div>
             </div>`;
         }).join('');
